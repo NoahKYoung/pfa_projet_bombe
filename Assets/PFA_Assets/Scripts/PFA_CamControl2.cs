@@ -51,7 +51,6 @@ public class PFA_CamControl2 : MonoBehaviour
 		// Set aim rotation
 		Quaternion aimRotation = Quaternion.Euler(-angleV, angleH, 0);
 		Quaternion camYRotation = Quaternion.Euler(0, angleH, 0);
-		aimRotation = player.rotation;
 		cam.rotation = aimRotation;
 			
 		#region Récupère la position du joueur et détermine la position de la caméra en smoothant les transitions

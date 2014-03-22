@@ -4,6 +4,9 @@ using System.Collections;
 public class PFA_TPControl : MonoBehaviour 
 {
 	// Public informations
+	public Camera _refCam;
+	public Transform playergraphic;
+	
 	public float _speed = 0.2f; // Vitesse
 	public float _runningSpeed = 0.4f; // Vitesse en sprint
 	public float _sidewaySpeedDivider = 0.75f;
@@ -14,7 +17,7 @@ public class PFA_TPControl : MonoBehaviour
 	
 	// Movement vars
 	Vector2 stickInput;
-	float deadzone = 0.15f;
+	float deadzone = 0.25f;
 	
 	// Game states
 	bool _canJump = true;
@@ -93,23 +96,10 @@ public class PFA_TPControl : MonoBehaviour
 		{
 			stickInput = Vector2.zero;
 		}
-		
-		if(stickInput.y > deadzone)
-		{
-			stickInput.y = 1;
-		}
-		else if (stickInput.y < -deadzone)
-		{
-			stickInput.y = -1; // gérer ca
-		}
-		else
-		{
-			stickInput.y = 0;
-		}
 	}
 	
 	void MoveCharacter()
-	{
+	{		
 		// Is sprinting ? Check speed
 		float currentSpeed = 0f;
 		
@@ -123,39 +113,23 @@ public class PFA_TPControl : MonoBehaviour
 		}
 		
 		
-		//Rotate
-		if(stickInput.y == -1)
+		// Player movement
+		Vector3 modifiedDirRight = _refCam.transform.right;
+		modifiedDirRight.y = 0;
+		
+		Vector3 modifiedDirForward = _refCam.transform.forward;
+		modifiedDirForward.y = 0;
+		
+		this.transform.Translate(modifiedDirRight * stickInput.x * currentSpeed);
+		this.transform.Translate(modifiedDirForward * stickInput.y * currentSpeed);
+		
+		//Player graphic rotation
+		Vector3 moveDirection = new Vector3(stickInput.x * currentSpeed, 0, stickInput.y * currentSpeed);
+		
+		if (moveDirection != Vector3.zero)
 		{
-			if(stickInput.x != 0)
-			{
-				this.transform.Rotate(stickInput.y * -(stickInput.x/(Mathf.Abs(stickInput.x))) * this.transform.up * _reversinRotSpeed);
-			}
-			else
-			{
-				this.transform.Rotate(stickInput.y * this.transform.up * _reversinRotSpeed);
-			}
-		}
-		else if(stickInput.y == 0)
-		{
-			this.transform.Rotate(stickInput.x * this.transform.up * _rotSpeed);
-		}
-		else
-		{
-			this.transform.Rotate(stickInput.x * this.transform.up * _rotSpeed);
-		}
-	
-		// Movement
-		if(stickInput.y == -1)
-		{
-			this.transform.Translate(0, 0, Mathf.Abs(stickInput.y) * currentSpeed/_reversinSpeedDivider);
-		}
-		else if(stickInput.y == 0)
-		{
-			this.transform.Translate(0, 0, Mathf.Abs(stickInput.x) * currentSpeed/_sidewaySpeedDivider);
-		}
-		else
-		{
-			this.transform.Translate(0, 0, stickInput.y * currentSpeed);
+			Quaternion newRotation = Quaternion.LookRotation(moveDirection);
+			playergraphic.transform.rotation = Quaternion.Slerp(playergraphic.transform.rotation, newRotation, Time.deltaTime * 8);
 		}
 	}
 }
