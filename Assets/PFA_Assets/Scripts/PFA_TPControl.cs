@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿	 using UnityEngine;
 using System.Collections;
 
 public class PFA_TPControl : MonoBehaviour 
@@ -9,11 +9,8 @@ public class PFA_TPControl : MonoBehaviour
 	
 	public float _speed = 0.2f; // Vitesse
 	public float _runningSpeed = 0.4f; // Vitesse en sprint
-	public float _sidewaySpeedDivider = 0.75f;
-	public float _reversinSpeedDivider = 0.5f;
-	public float _rotSpeed = 3.5f;
-	public float _sidewayRotSpeed = 4.5f;
-	public float _reversinRotSpeed = 6f;
+	public float _rangeExpAngle = 40f;
+	public float _rangeRunExpAngle = 65f;
 	
 	// Movement vars
 	Vector2 stickInput;
@@ -22,6 +19,7 @@ public class PFA_TPControl : MonoBehaviour
 	// Game states
 	bool _canJump = true;
 	bool _sprinting = false;
+	bool _stunned = false;
 	
 	// Use this for initialization
 	void Start ()
@@ -43,6 +41,39 @@ public class PFA_TPControl : MonoBehaviour
 			Debug.Log ("CAN JUMP !");
 			_canJump = true;
 		}
+		
+		if(col.transform.tag == "Wall")
+		{
+			float collisionAngle = Vector3.Angle(col.contacts[0].normal, -this.playergraphic.forward);
+			
+			if(_sprinting)
+			{
+				if(collisionAngle < _rangeRunExpAngle)
+				{
+					Debug.Log ("BOOOOM");
+				}
+				else
+				{
+					Debug.Log ("STUNNED");
+				}
+			}
+			else
+			{
+				if(collisionAngle < _rangeExpAngle)
+				{
+					Debug.Log ("BOOOOM");
+				}
+				else
+				{
+					Debug.Log ("STUNNED");
+				}
+			}
+		}
+	}
+	
+	void stunPlayer()
+	{
+		// stun code goes here
 	}
 	
 	void CheckInputs()
