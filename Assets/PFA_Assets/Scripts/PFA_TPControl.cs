@@ -92,9 +92,32 @@ public class PFA_TPControl : MonoBehaviour
 	
 	void modifyInputs()
 	{
-		if(stickInput.magnitude < deadzone)
+		if(stickInput.x < deadzone && stickInput.x > -deadzone)
 		{
-			stickInput = Vector2.zero;
+			stickInput.x = 0;
+		}
+		
+		if(stickInput.y < deadzone && stickInput.y > -deadzone)
+		{
+			stickInput.y = 0;
+		}
+		
+		if(stickInput.x > 0)
+		{
+			stickInput.x = 1;
+		}
+		else if(stickInput.x < 0)
+		{
+			stickInput.x = -1;
+		}
+		
+		if(stickInput.y > 0)
+		{
+			stickInput.y = 1;
+		}
+		else if(stickInput.y < 0)
+		{
+			stickInput.y = -1;
 		}
 	}
 	
@@ -120,15 +143,23 @@ public class PFA_TPControl : MonoBehaviour
 		Vector3 modifiedDirForward = _refCam.transform.forward;
 		modifiedDirForward.y = 0;
 		
-		this.transform.Translate(modifiedDirRight * stickInput.x * currentSpeed);
-		this.transform.Translate(modifiedDirForward * stickInput.y * currentSpeed);
+		Vector3 xTranslate = modifiedDirRight * stickInput.x * currentSpeed;
+		Vector3 yTranslate = modifiedDirForward * stickInput.y * currentSpeed;
+		Vector3 composedTranslate = Vector3.Lerp(xTranslate, yTranslate, 0.5f);
+		
+		if(composedTranslate.magnitude > currentSpeed)
+		{
+			composedTranslate.x /= 2;
+			composedTranslate.y /= 2;
+		}
+		
+		this.transform.Translate(composedTranslate);
 		
 		//Player graphic rotation
-		Vector3 moveDirection = new Vector3(stickInput.x * currentSpeed, 0, stickInput.y * currentSpeed);
 		
-		if (moveDirection != Vector3.zero)
+		if (composedTranslate != Vector3.zero)
 		{
-			Quaternion newRotation = Quaternion.LookRotation(moveDirection);
+			Quaternion newRotation = Quaternion.LookRotation(composedTranslate);
 			playergraphic.transform.rotation = Quaternion.Slerp(playergraphic.transform.rotation, newRotation, Time.deltaTime * 8);
 		}
 	}
