@@ -1,4 +1,4 @@
-﻿	 using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 public class PFA_TPControl : MonoBehaviour 
@@ -9,17 +9,29 @@ public class PFA_TPControl : MonoBehaviour
 	
 	public float _speed = 0.2f; // Vitesse
 	public float _runningSpeed = 0.4f; // Vitesse en sprint
+	
 	public float _rangeExpAngle = 40f;
 	public float _rangeRunExpAngle = 65f;
 	
+	public float _maxStunCount = 2.5f;
+	
+	public float _maxKickCount = 0.25f;
+	
 	// Movement vars
-	Vector2 stickInput;
-	float deadzone = 0.25f;
+	private Vector2 stickInput;
+	private float deadzone = 0.25f;
 	
 	// Game states
-	bool _canJump = true;
-	bool _sprinting = false;
-	bool _stunned = false;
+	private bool _canJump = true;
+	
+	private bool _sprinting = false;
+	
+	private bool _stunned = false;
+	private float _stunCount = 0;
+	
+	private bool _kickback = false;
+	private float _kickCount = 0;
+	private Vector3 _kickbackDirection;
 	
 	// Use this for initialization
 	void Start ()
@@ -30,8 +42,13 @@ public class PFA_TPControl : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
 	{
-		CheckInputs();
-		MoveCharacter();
+		CheckStates();
+		
+		if(!_stunned)
+		{
+			CheckInputs();
+			MoveCharacter();
+		}
 	}
 	
 	void OnCollisionEnter(Collision col)
@@ -54,7 +71,8 @@ public class PFA_TPControl : MonoBehaviour
 				}
 				else
 				{
-					Debug.Log ("STUNNED");
+					stunPlayer();
+					projectBack();
 				}
 			}
 			else
@@ -65,17 +83,59 @@ public class PFA_TPControl : MonoBehaviour
 				}
 				else
 				{
-					Debug.Log ("STUNNED");
+					stunPlayer();
+					projectBack();
 				}
 			}
 		}
 	}
 	
-	void stunPlayer()
+	// Verify any states actual state
+	void CheckStates()
 	{
-		// stun code goes here
+		if(_stunned)
+		{
+			_stunCount += Time.deltaTime;
+			
+			if(_stunCount >= _maxStunCount)
+			{
+				_stunned = false;
+				_stunCount = 0;
+			}
+		}
+		
+		if(_kickback)
+		{
+			_kickCount += Time.deltaTime;
+			
+			if(_kickCount >= _maxKickCount)
+			{
+				_kickback = false;
+				_kickCount = 0;
+			}
+			else
+			{
+				this.transform.Translate(_kickbackDirection * 0.25f);
+			}
+		}
 	}
 	
+	// Set stun variables
+	void stunPlayer()
+	{
+		_stunned = true;
+		_stunCount = 0;
+	}
+	
+	// Projects player backwards
+	void projectBack()
+	{
+		_kickback = true;
+		_kickbackDirection = -this.playergraphic.forward;
+		_kickCount = 0;
+	}
+	
+	// Verify inputs
 	void CheckInputs()
 	{
 		// Movement Inputs		
@@ -121,6 +181,7 @@ public class PFA_TPControl : MonoBehaviour
 		}
 	}
 	
+	// Modify inputs for unique speed
 	void modifyInputs()
 	{
 		if(stickInput.x < deadzone && stickInput.x > -deadzone)
@@ -152,6 +213,7 @@ public class PFA_TPControl : MonoBehaviour
 		}
 	}
 	
+	// Move and rotate character accordingly
 	void MoveCharacter()
 	{		
 		// Is sprinting ? Check speed
