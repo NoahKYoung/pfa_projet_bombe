@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\PFA_Assets\Scripts\PFA_CamControl2.cs" />
+     <Compile Include="Assets\PFA_Assets\Scripts\PFA_Civil.cs" />
      <Compile Include="Assets\PFA_Assets\Scripts\PFA_TPCamera.cs" />
      <Compile Include="Assets\PFA_Assets\Scripts\PFA_TPControl.cs" />
  <Reference Include="Assembly-UnityScript-firstpass">
