@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿ using UnityEngine;
 using System.Collections;
 
 public class PFA_TPControl : MonoBehaviour 
@@ -7,15 +7,16 @@ public class PFA_TPControl : MonoBehaviour
 	public Camera _refCam;
 	public Transform playergraphic;
 	
-	public float _speed = 0.2f; // Vitesse
-	public float _runningSpeed = 0.4f; // Vitesse en sprint
+	public float _speed = 6f; // Vitesse
+	public float _runningSpeed = 12f; // Vitesse en sprint
 	
 	public float _rangeExpAngle = 40f;
 	public float _rangeRunExpAngle = 65f;
 	
-	public float _maxStunCount = 2.5f;
+	public float _maxStunCount = 1.5f;
 	
-	public float _maxKickCount = 0.25f;
+	public float _kickbackSpeed = 0.2f;
+	public float _kickbackDistance = 2f;
 	
 	// Movement vars
 	private Vector2 stickInput;
@@ -30,8 +31,8 @@ public class PFA_TPControl : MonoBehaviour
 	private float _stunCount = 0;
 	
 	private bool _kickback = false;
-	private float _kickCount = 0;
 	private Vector3 _kickbackDirection;
+	private Vector3 _originalPos;
 	
 	// Use this for initialization
 	void Start ()
@@ -83,6 +84,7 @@ public class PFA_TPControl : MonoBehaviour
 				}
 				else
 				{
+					_originalPos = transform.position;
 					stunPlayer();
 					projectBack();
 				}
@@ -95,27 +97,25 @@ public class PFA_TPControl : MonoBehaviour
 	{
 		if(_stunned)
 		{
-			_stunCount += Time.deltaTime;
-			
 			if(_stunCount >= _maxStunCount)
 			{
 				_stunned = false;
 				_stunCount = 0;
 			}
+			
+			_stunCount += Time.deltaTime;
 		}
 		
 		if(_kickback)
 		{
-			_kickCount += Time.deltaTime;
-			
-			if(_kickCount >= _maxKickCount)
+			if(Vector3.Distance(_originalPos, transform.position) < _kickbackDistance)
 			{
-				_kickback = false;
-				_kickCount = 0;
+				this.transform.Translate(_kickbackDirection * _kickbackSpeed * Time.deltaTime);
 			}
 			else
 			{
-				this.transform.Translate(_kickbackDirection * 0.25f);
+				Debug.Log(Vector3.Distance(_originalPos, transform.position));
+				_kickback = false;
 			}
 		}
 	}
@@ -132,7 +132,7 @@ public class PFA_TPControl : MonoBehaviour
 	{
 		_kickback = true;
 		_kickbackDirection = -this.playergraphic.forward;
-		_kickCount = 0;
+		_kickbackDirection = Vector3.Normalize(_kickbackDirection);
 	}
 	
 	// Verify inputs
@@ -141,9 +141,6 @@ public class PFA_TPControl : MonoBehaviour
 		// Movement Inputs		
 		stickInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
 		modifyInputs();
-		
-		//Debug.Log ("H = " + stickInput.x);
-		//Debug.Log ("V = " + stickInput.y);
 		
 		// Control inputs
 		// Jump inputs
@@ -236,20 +233,15 @@ public class PFA_TPControl : MonoBehaviour
 		Vector3 modifiedDirForward = _refCam.transform.forward;
 		modifiedDirForward.y = 0;
 		
-		Vector3 xTranslate = modifiedDirRight * stickInput.x * currentSpeed;
-		Vector3 yTranslate = modifiedDirForward * stickInput.y * currentSpeed;
+		Vector3 xTranslate = modifiedDirRight * stickInput.x;
+		Vector3 yTranslate = modifiedDirForward * stickInput.y;
 		Vector3 composedTranslate = Vector3.Lerp(xTranslate, yTranslate, 0.5f);
 		
-		if(composedTranslate.magnitude > currentSpeed)
-		{
-			composedTranslate.x /= 2;
-			composedTranslate.y /= 2;
-		}
+		composedTranslate = Vector3.Normalize(composedTranslate);
+		this.transform.Translate(composedTranslate * Time.deltaTime * currentSpeed);
 		
-		this.transform.Translate(composedTranslate);
 		
 		//Player graphic rotation
-		
 		if (composedTranslate != Vector3.zero)
 		{
 			Quaternion newRotation = Quaternion.LookRotation(composedTranslate);

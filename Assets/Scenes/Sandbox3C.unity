@@ -130,10 +130,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _refCam: {fileID: 662091920}
   playergraphic: {fileID: 1169117564}
-  _speed: .150000006
-  _runningSpeed: .25
+  _speed: 6
+  _runningSpeed: 12
   _rangeExpAngle: 40
   _rangeRunExpAngle: 65
+  _maxStunCount: 1.5
+  _kickbackSpeed: 15
+  _kickbackDistance: 1.75
 --- !u!54 &267823669
 Rigidbody:
   m_ObjectHideFlags: 0
