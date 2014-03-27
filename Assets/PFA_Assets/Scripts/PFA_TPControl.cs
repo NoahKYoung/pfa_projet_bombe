@@ -6,6 +6,8 @@ public class PFA_TPControl : MonoBehaviour
 	// Public informations
 	public Camera _refCam;
 	public Transform playergraphic;
+	public GameObject zone;
+	public GameObject ground;
 	
 	public float _speed = 0.2f; // Vitesse
 	public float _runningSpeed = 0.4f; // Vitesse en sprint
@@ -22,6 +24,7 @@ public class PFA_TPControl : MonoBehaviour
 	// Game states
 	bool _canJump = true;
 	bool _sprinting = false;
+	bool showzone = false;
 	
 	// Use this for initialization
 	void Start ()
@@ -88,6 +91,11 @@ public class PFA_TPControl : MonoBehaviour
 		{
 			Debug.Log("Roll-up");
 		}
+		// Explosion zone input
+		if (Input.GetKey(KeyCode.Joystick1Button5))
+		{
+			zonevisibility();
+		}
 	}
 	
 	void modifyInputs()
@@ -133,8 +141,7 @@ public class PFA_TPControl : MonoBehaviour
 		else if (_sprinting)
 		{
 			currentSpeed = _runningSpeed;
-		}
-		
+		}		
 		
 		// Player movement
 		Vector3 modifiedDirRight = _refCam.transform.right;
@@ -161,6 +168,22 @@ public class PFA_TPControl : MonoBehaviour
 		{
 			Quaternion newRotation = Quaternion.LookRotation(composedTranslate);
 			playergraphic.transform.rotation = Quaternion.Slerp(playergraphic.transform.rotation, newRotation, Time.deltaTime * 8);
+		}
+		
+		}
+	//Explosion zone
+		
+	void zonevisibility()
+	{
+		showzone = !showzone;
+		Debug.Log("showzone");
+		if (showzone)
+		{
+		Object.Instantiate(zone, new Vector3(gameObject.transform.position.x, ground.transform.position.y, gameObject.transform.position.z), gameObject.transform.rotation);
+		}
+		else
+		{
+		Debug.Log("false bitches");
 		}
 	}
 }
