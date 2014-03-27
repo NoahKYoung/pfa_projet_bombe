@@ -5,10 +5,26 @@ public class PFA_Civil : MonoBehaviour
 {
 	public float _speed = 4f;
 	
+	public int _behaviourPattern = 0;
+	private int _currentBehaviour = 0;
+	
+	enum Behaviours
+	{
+		LinearMov,
+		RandMov,
+		Idle,
+		Fleeing
+	};
+	
 	// Use this for initialization
 	void Start () 
 	{
+		InitBehaviour();
+	}
 	
+	void InitBehaviour()
+	{
+		
 	}
 	
 	// Update is called once per frame
