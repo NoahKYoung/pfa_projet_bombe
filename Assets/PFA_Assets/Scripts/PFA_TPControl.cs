@@ -170,9 +170,9 @@ public class PFA_TPControl : MonoBehaviour
 			playergraphic.transform.rotation = Quaternion.Slerp(playergraphic.transform.rotation, newRotation, Time.deltaTime * 8);
 		}
 		
-		}
+	}
 	//Explosion zone
-		
+
 	void zonevisibility()
 	{
 		showzone = !showzone;
@@ -180,10 +180,12 @@ public class PFA_TPControl : MonoBehaviour
 		if (showzone)
 		{
 		Object.Instantiate(zone, new Vector3(gameObject.transform.position.x, ground.transform.position.y, gameObject.transform.position.z), gameObject.transform.rotation);
+		GameObject.Find("Zone(Clone)").transform.position = new Vector3(gameObject.transform.position.x, ground.transform.position.y, gameObject.transform.position.z);
 		}
 		else
 		{
-		Debug.Log("false bitches");
+		Debug.Log("false");
+		Destroy(GameObject.Find("Zone(Clone)"), 0);
 		}
 	}
 }
