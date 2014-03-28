@@ -5,7 +5,7 @@
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
 	<ProductVersion>10.0.20506</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
-	<ProjectGuid>{D3A22772-315D-3EDE-272E-F0EE19238E7F}</ProjectGuid>
+	<ProjectGuid>{595B63F5-BA9C-A73C-92F2-69C40A50C78A}</ProjectGuid>
 	<OutputType>Library</OutputType>
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<RootNamespace></RootNamespace>
@@ -44,6 +44,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\PFA_Assets\NewBehaviourScript.cs" />
      <Compile Include="Assets\PFA_Assets\Scripts\PFA_CamControl2.cs" />
      <Compile Include="Assets\PFA_Assets\Scripts\PFA_TPCamera.cs" />
      <Compile Include="Assets\PFA_Assets\Scripts\PFA_TPControl.cs" />
@@ -53,7 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Assembly-CSharp-firstpass-vs.csproj">
-      <Project>{2DA4C248-C63E-318A-F0C8-C41B92A1EA74}</Project>      <Name>Assembly-CSharp-firstpass-vs</Name>    </ProjectReference>
+      <Project>{78A60E01-EFF9-5AC5-2CA2-89C9FCA02401}</Project>      <Name>Assembly-CSharp-firstpass-vs</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

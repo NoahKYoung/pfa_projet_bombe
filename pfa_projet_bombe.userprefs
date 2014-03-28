@@ -1,0 +1,13 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\PFA_Assets\Scripts\PFA_TPControl.cs">
+    <Files>
+      <File FileName="..\..\GD2_CHARBIT_Calvin_Unity\Assets\PlayerShot.cs" Line="6" Column="5" />
+      <File FileName="Assets\PFA_Assets\Scripts\PFA_TPControl.cs" Line="4" Column="13" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
