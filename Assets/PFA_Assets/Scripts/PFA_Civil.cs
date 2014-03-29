@@ -3,11 +3,40 @@ using System.Collections;
 
 public class PFA_Civil : MonoBehaviour 
 {
-	public int _behaviourPattern = 0;
-	public float _speed = 4f;
 	
+	// Linear & Rand usage
+	public GameObject _patrolReference;
+	
+	// Wander usage
+	public float _wanderRadius = 15f;
+	private Vector3 _wanderDir;
+	private float _wanderCounter = 0f;
+	private float _maxDirWanderTime = 2f;
+	private float _anglesLimit = 90f;
+	
+	// Line usage
+	private Vector3 _lineDir;
+	private float _lineDirMod = 1f;
+	
+	// Flee usage
+	public GameObject _playerRef;
+	
+	//Behaviours
+	public int _behaviourPattern = 0;
 	private int _currentBehaviour = 0;
 	
+	enum  Behaviours
+	{
+		LinearMov = 0,
+		RandMov = 1,
+		Idle = 2,
+		Fleeing = 3
+	};
+	
+	// Speed
+	public float _speed = 4f;
+	
+	// Times
 	public float _maxIdleTime = 0f;
 	public float _minIdleTime = 0f;
 	
@@ -20,37 +49,57 @@ public class PFA_Civil : MonoBehaviour
 	public float _maxRandTime = 0f;
 	public float _minRandTime = 0f;
 	
+	// Random weights
 	public float _randIdle = 0.1f;
 	public float _randFlee = 0.1f;
 	public float _randLine = 0.1f;
 	public float _randRand = 0.1f;
 	
+	// Global usages
+	public Transform civilGraph;
 	private float _counter = 0f;
 	private Vector3 _originalPos;
 	
 	private delegate void RefFunc();
 	
-	enum  Behaviours
-	{
-		LinearMov = 0,
-		RandMov = 1,
-		Idle = 2,
-		Fleeing = 3
-	};
-	
-	// Use this for initialization
 	void Start () 
 	{
 		InitBehaviour();
 		_originalPos = this.transform.position;
 	}
 	
+	void InitLine()
+	{
+		_lineDir = _patrolReference.transform.position - transform.position;
+		_lineDir = Vector3.Normalize(_lineDir);
+		_lineDir.y = 0;
+	}
+	
+	void InitWander()
+	{
+		float angleW = Random.Range(-_anglesLimit, _anglesLimit);
+		Quaternion rotationW = Quaternion.AngleAxis(angleW, Vector3.up);
+		
+		_wanderDir = rotationW * transform.forward;
+		_wanderDir = Vector3.Normalize(_wanderDir);
+		_wanderDir.y = 0;
+	}
+	
 	void InitBehaviour()
 	{
 		_currentBehaviour = _behaviourPattern;
+		switch(_behaviourPattern)
+		{
+			case (int)Behaviours.LinearMov:
+				InitLine();
+			break;
+			
+			case (int)Behaviours.RandMov:
+				InitWander();
+			break;
+		}
 	}
 	
-	// Update is called once per frame
 	void Update () 
 	{
 		CivilMovement();
@@ -58,22 +107,83 @@ public class PFA_Civil : MonoBehaviour
 	
 	void BehaveFlee()
 	{
-		Debug.Log ("FLEEING");
+		Debug.Log("FLEEING");
 	}
 	
 	void BehaveRand()
 	{
-		Debug.Log ("WANDERING");
+		Vector3 moveVec;
+		
+		if(Vector3.Distance(transform.position, _originalPos) >= _wanderRadius)
+		{
+			Debug.Log ("GOING BACK");
+			moveVec = (_originalPos - transform.position);
+			moveVec = Vector3.Normalize(moveVec);
+			moveVec.y = 0;			
+			_wanderDir = moveVec;
+			
+			_wanderCounter = 0f;
+		}
+		else
+		{
+			_wanderCounter += Time.deltaTime;
+			
+			if(_wanderCounter >= _maxDirWanderTime)
+			{
+				float angleW = Random.Range(-_anglesLimit, _anglesLimit);
+				Quaternion rotationW = Quaternion.AngleAxis(angleW, Vector3.up);
+				
+				moveVec = _wanderDir;
+				moveVec = rotationW * moveVec;
+				moveVec = Vector3.Normalize(moveVec);
+				_wanderDir = moveVec;
+				
+				_wanderCounter = 0f;
+			}
+		}
+			
+		moveVec = _wanderDir * _speed * Time.deltaTime;
+		
+		transform.Translate(moveVec);
+		RotateGraphTowards(moveVec);
 	}
 	
 	void BehaveLine()
 	{
-		Debug.Log ("PATROLLING");
+		// Movement
+		Vector3 moveVec = _lineDir * _speed * Time.deltaTime * _lineDirMod;
+		transform.Translate(moveVec);
+		
+		// Player graphic rotation
+		RotateGraphTowards(moveVec);
+		
+		// Change direction if close to patrol point
+		if(_lineDirMod == -1f)
+		{
+			if(Vector3.Distance(transform.position, _originalPos) <= 1f)
+			{
+				_lineDirMod *= -1f;
+			}
+		}
+		else if (_lineDirMod == 1f)
+		{
+			if(Vector3.Distance(transform.position, _patrolReference.transform.position) <= 1f)
+			{
+				_lineDirMod *= -1f;
+			}
+		}
+			
 	}
 	
 	void BehaveIdle()
 	{
-		Debug.Log ("IDLING");
+		// If close enough, look at player !
+		if(Vector3.Distance(_playerRef.transform.position, transform.position) <= 5f)
+		{
+			Vector3 LookPlayer = _playerRef.transform.position - transform.position;
+			LookPlayer.y = 0;
+			RotateGraphTowards(LookPlayer);
+		}
 	}
 	
 	void CivilMovement()
@@ -96,6 +206,10 @@ public class PFA_Civil : MonoBehaviour
 				{
 					BehaviourChecks(BehaveIdle, _maxIdleTime, _minIdleTime, _randIdle);
 				}
+				else
+				{
+					BehaveIdle();
+				}
 			break;
 			
 			case (int)Behaviours.LinearMov:
@@ -116,7 +230,6 @@ public class PFA_Civil : MonoBehaviour
 				}
 				else
 				{
-					Debug.Log("WADDUP");
 					BehaviourChecks(BehaveRand, _maxRandTime, _minRandTime, _randRand);
 				}
 			break;
@@ -126,7 +239,6 @@ public class PFA_Civil : MonoBehaviour
 	void BehaviourChecks(RefFunc BehaveFunc, float _maxTime, float _minTime, float _randChance)
 	{
 		_counter += Time.deltaTime;
-		Debug.Log ("COUNtING " + _counter);
 		
 		if(_counter >= _maxTime)
 		{
@@ -137,7 +249,6 @@ public class PFA_Civil : MonoBehaviour
 		{
 			if(ChangeBCheck(_randChance) && _counter >= _minTime)
 			{
-				Debug.Log("TOGGLING B...");
 				ToggleIdleBehaviour();
 			}
 			else
@@ -153,12 +264,10 @@ public class PFA_Civil : MonoBehaviour
 		{
 			if(_currentBehaviour != _behaviourPattern)
 			{
-				Debug.Log("RESETTING B.");
 				_currentBehaviour = _behaviourPattern;
 			}
 			else
 			{
-				Debug.Log("SWITCHING TO IDLE B.");
 				_currentBehaviour = (int)Behaviours.Idle;
 			}
 			
@@ -182,10 +291,13 @@ public class PFA_Civil : MonoBehaviour
 		
 		return _retCheck;
 	}
-	/*
-	this.transform.Rotate(this.transform.up, Random.Range(-5f, 15f));
-	this.transform.Translate(Vector3.Normalize(this.transform.forward) * Time.deltaTime * _speed);
 	
-	this.transform.rotation = Quaternion.LookRotation(Vector3.Normalize(this.transform.forward) * Time.deltaTime * _speed);
-	*/
+	void RotateGraphTowards(Vector3 moveVec)
+	{
+		if (moveVec != Vector3.zero)
+		{
+			Quaternion newRotation = Quaternion.LookRotation(moveVec);
+			civilGraph.rotation = Quaternion.Slerp(civilGraph.rotation, newRotation, Time.deltaTime * 8);
+		}
+	}
 }

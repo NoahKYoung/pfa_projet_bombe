@@ -90,6 +90,13 @@ public class PFA_TPControl : MonoBehaviour
 				}
 			}
 		}
+		
+		if(col.transform.tag == "Civil")
+		{
+			_originalPos = transform.position;
+			stunPlayer();
+			projectBack();
+		}
 	}
 	
 	// Verify any states actual state
@@ -245,7 +252,7 @@ public class PFA_TPControl : MonoBehaviour
 		if (composedTranslate != Vector3.zero)
 		{
 			Quaternion newRotation = Quaternion.LookRotation(composedTranslate);
-			playergraphic.transform.rotation = Quaternion.Slerp(playergraphic.transform.rotation, newRotation, Time.deltaTime * 8);
+			playergraphic.rotation = Quaternion.Slerp(playergraphic.rotation, newRotation, Time.deltaTime * 8);
 		}
 	}
 }
