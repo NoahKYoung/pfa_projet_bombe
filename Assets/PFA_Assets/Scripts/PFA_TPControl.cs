@@ -26,6 +26,7 @@ public class PFA_TPControl : MonoBehaviour
 	private float deadzone = 0.25f;
 	
 	// Game states
+	private bool _isSpherical = false;
 	private bool _canJump = true;
 	
 	private bool _sprinting = false;
@@ -46,12 +47,39 @@ public class PFA_TPControl : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
 	{
-		CheckStates();
-		
-		if(!_stunned)
+		if(!_isSpherical)
 		{
-			CheckInputs();
-			MoveCharacter();
+			CheckStates();
+			
+			if(!_stunned)
+			{
+				CheckInputs();
+				MoveCharacter();
+			}
+		}
+		else
+		{
+			SphericalUpdate();
+		}		
+	}
+	
+	void SphericalUpdate()
+	{
+		ResetCharPos();
+		CheckSphericalInputs();
+	}
+	
+	void ResetCharPos()
+	{
+		transform.position = transform.Find("BOMB").position;
+		transform.Find("BOMB").position = transform.position;
+	}
+	
+	void CheckSphericalInputs()
+	{
+		if(Input.GetKeyDown(KeyCode.JoystickButton1))
+		{
+			RollUp(false);
 		}
 	}
 	
@@ -59,7 +87,6 @@ public class PFA_TPControl : MonoBehaviour
 	{
 		if(col.transform.tag == "Ground")
 		{
-			Debug.Log ("CAN JUMP !");
 			_canJump = true;
 		}
 		
@@ -165,27 +192,60 @@ public class PFA_TPControl : MonoBehaviour
 		// Sprint input
 		if (Input.GetKeyDown(KeyCode.JoystickButton2))
 		{
-			Debug.Log("Sprint");
 			_sprinting = true;			
 		}
 		
 		if (Input.GetKeyUp (KeyCode.JoystickButton2))
 		{
-			Debug.Log ("Stopped Sprinting");
 			_sprinting = false;
 		}
 		
 		// Shout input
 		if (Input.GetKeyDown(KeyCode.JoystickButton3))
 		{
-			Debug.Log("Shout");
 			Shout();
 		}	
 		
 		// Roll-up input
-		if (Input.GetKey(KeyCode.JoystickButton1))
+		if (Input.GetKeyDown(KeyCode.JoystickButton1))
 		{
-			Debug.Log("Roll-up");
+			RollUp(true);
+		}
+	}
+	
+	void RollUp(bool spherical)
+	{
+		_isSpherical = spherical;
+		
+		rigidbody.isKinematic = spherical;
+		collider.enabled = !spherical;
+		transform.Find("GraphPlayer").Find("perso_mesh").Find("MESH").Find("arttoy:TOY1").renderer.enabled = !spherical;
+		
+		Transform Bomb = transform.Find("BOMB");
+		Bomb.rigidbody.isKinematic = !spherical;
+		Bomb.collider.enabled = spherical;
+		Bomb.renderer.enabled = spherical;
+		
+		Bomb.position = transform.position;
+		
+		if(_isSpherical)
+		{
+			float _currentSpeed = _speed;
+			
+			if(_sprinting) 
+			{ 
+				_currentSpeed = _runningSpeed; 
+			}
+			
+			float isMoving = 0f;
+			
+			if(stickInput != Vector2.zero)
+			{
+				isMoving = 1f;
+			}
+			
+			Bomb.rigidbody.velocity = rigidbody.velocity + (playergraphic.forward * _currentSpeed * isMoving);
+			
 		}
 	}
 	
