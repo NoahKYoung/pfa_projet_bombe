@@ -1,5 +1,6 @@
-﻿ using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class PFA_TPControl : MonoBehaviour 
 {
@@ -17,6 +18,8 @@ public class PFA_TPControl : MonoBehaviour
 	
 	public float _kickbackSpeed = 0.2f;
 	public float _kickbackDistance = 2f;
+	
+	public float _screamRadius = 20f;
 	
 	// Movement vars
 	private Vector2 stickInput;
@@ -175,13 +178,25 @@ public class PFA_TPControl : MonoBehaviour
 		// Shout input
 		if (Input.GetKeyDown(KeyCode.JoystickButton3))
 		{
-			Debug.Log("Shout");	
+			Debug.Log("Shout");
+			Shout();
 		}	
 		
 		// Roll-up input
 		if (Input.GetKey(KeyCode.JoystickButton1))
 		{
 			Debug.Log("Roll-up");
+		}
+	}
+	
+	void Shout()
+	{
+		GameObject[] civilList =  GameObject.FindGameObjectsWithTag("Civil");
+		int i = 0;
+		
+		for(i = 0; i < civilList.Length; i++)
+		{
+			(civilList[i].GetComponent("PFA_Civil") as PFA_Civil).ScreamedAt();
 		}
 	}
 	

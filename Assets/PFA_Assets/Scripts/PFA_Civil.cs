@@ -3,7 +3,6 @@ using System.Collections;
 
 public class PFA_Civil : MonoBehaviour 
 {
-	
 	// Linear & Rand usage
 	public GameObject _patrolReference;
 	
@@ -20,6 +19,10 @@ public class PFA_Civil : MonoBehaviour
 	
 	// Flee usage
 	public GameObject _playerRef;
+	private Vector3 _fleeDir;
+	private float _fleeAngleBounds = 45f;
+	private float _fleeCounter = 0f;
+	private float _maxDirFleeTime = 1f;
 	
 	//Behaviours
 	public int _behaviourPattern = 0;
@@ -68,11 +71,33 @@ public class PFA_Civil : MonoBehaviour
 		_originalPos = this.transform.position;
 	}
 	
+	//Public
+	public void ScreamedAt()
+	{
+		float screamRad = (_playerRef.GetComponent("PFA_TPControl") as PFA_TPControl)._screamRadius;
+		
+		if(Vector3.Distance(transform.position, _playerRef.transform.position) <= screamRad)
+		{
+			StartFleeing();
+		}
+	}
+	
+	//Privates	
 	void InitLine()
 	{
 		_lineDir = _patrolReference.transform.position - transform.position;
 		_lineDir = Vector3.Normalize(_lineDir);
 		_lineDir.y = 0;
+	}
+	
+	void InitFlee()
+	{
+		float angleW = Random.Range(-_fleeAngleBounds, _fleeAngleBounds);
+		Quaternion rotationW = Quaternion.AngleAxis(angleW, Vector3.up);
+		
+		_fleeDir = rotationW * transform.forward;
+		_fleeDir = Vector3.Normalize(_fleeDir);
+		_fleeDir.y = 0;
 	}
 	
 	void InitWander()
@@ -85,9 +110,11 @@ public class PFA_Civil : MonoBehaviour
 		_wanderDir.y = 0;
 	}
 	
+	//Necessary sets
 	void InitBehaviour()
 	{
 		_currentBehaviour = _behaviourPattern;
+		
 		switch(_behaviourPattern)
 		{
 			case (int)Behaviours.LinearMov:
@@ -97,6 +124,10 @@ public class PFA_Civil : MonoBehaviour
 			case (int)Behaviours.RandMov:
 				InitWander();
 			break;
+			
+			case (int)Behaviours.Fleeing:
+				InitFlee();
+			break;
 		}
 	}
 	
@@ -105,18 +136,50 @@ public class PFA_Civil : MonoBehaviour
 		CivilMovement();
 	}
 	
-	void BehaveFlee()
+	// FLEE NIGGA
+	void StartFleeing()
 	{
-		Debug.Log("FLEEING");
+		_behaviourPattern = (int)Behaviours.Fleeing;
+		_currentBehaviour = _behaviourPattern;
+		
+		InitFlee();
 	}
 	
+	// Flee other way of the player, stops when doesn't see him anymore
+	void BehaveFlee()
+	{
+		Vector3 moveVec;
+		
+		_fleeCounter += Time.deltaTime;
+			
+		if(_fleeCounter >= _maxDirFleeTime)
+		{
+			_fleeDir = (transform.position - _playerRef.transform.position);
+			float angleW = Random.Range(-_fleeAngleBounds, _fleeAngleBounds);
+			Quaternion rotationW = Quaternion.AngleAxis(angleW, Vector3.up);
+			
+			moveVec = _fleeDir;
+			moveVec = rotationW * moveVec;
+			moveVec = Vector3.Normalize(moveVec);
+			moveVec.y = 0;
+			_fleeDir = moveVec;
+			
+			_fleeCounter = 0f;
+		}
+		
+		moveVec = _fleeDir * _speed * Time.deltaTime;
+		
+		transform.Translate(_fleeDir * _speed * Time.deltaTime);
+		RotateGraphTowards(moveVec);
+	}
+	
+	// Wander within radius.
 	void BehaveRand()
 	{
 		Vector3 moveVec;
 		
 		if(Vector3.Distance(transform.position, _originalPos) >= _wanderRadius)
 		{
-			Debug.Log ("GOING BACK");
 			moveVec = (_originalPos - transform.position);
 			moveVec = Vector3.Normalize(moveVec);
 			moveVec.y = 0;			
@@ -148,6 +211,7 @@ public class PFA_Civil : MonoBehaviour
 		RotateGraphTowards(moveVec);
 	}
 	
+	// Go towards point and go back to originpoint
 	void BehaveLine()
 	{
 		// Movement
@@ -175,6 +239,7 @@ public class PFA_Civil : MonoBehaviour
 			
 	}
 	
+	// Idle behaviour
 	void BehaveIdle()
 	{
 		// If close enough, look at player !
@@ -186,18 +251,47 @@ public class PFA_Civil : MonoBehaviour
 		}
 	}
 	
+	bool CivilianSeesPlayer()
+	{
+		bool retbool = true;
+		
+		Ray castRay = new Ray(transform.position, (_playerRef.transform.position - transform.position));
+		float castDist = Vector3.Distance(transform.position, _playerRef.transform.position);
+		RaycastHit hittarget;
+		
+		if(Physics.Raycast(castRay, out hittarget, castDist))
+		{
+			if(hittarget.collider.gameObject.tag == "Wall")
+			{
+				retbool = false;
+			}
+		}
+		
+		Debug.DrawRay(transform.position, (_playerRef.transform.position - transform.position), Color.red);
+		
+		return retbool;
+	}
+	
+	// Manage behaviours
 	void CivilMovement()
 	{
 		switch(_currentBehaviour)
 		{
 			case (int)Behaviours.Fleeing:
-				if(_maxFleeTime <= 0)
+				if(CivilianSeesPlayer())
 				{
-					BehaveFlee();
+					if(_maxFleeTime <= 0)
+					{
+						BehaveFlee();
+					}
+					else
+					{
+						BehaviourChecks(BehaveFlee, _maxFleeTime, _minFleeTime, _randFlee);
+					}
 				}
 				else
 				{
-					BehaviourChecks(BehaveFlee, _maxFleeTime, _minFleeTime, _randFlee);
+					Debug.Log("STOPPIT");
 				}
 			break;
 			
@@ -235,7 +329,8 @@ public class PFA_Civil : MonoBehaviour
 			break;
 		}
 	}
-		
+	
+	// Updates time, checks if over and applies correct behaviour
 	void BehaviourChecks(RefFunc BehaveFunc, float _maxTime, float _minTime, float _randChance)
 	{
 		_counter += Time.deltaTime;
@@ -258,6 +353,7 @@ public class PFA_Civil : MonoBehaviour
 		}
 	}
 	
+	// Toggles between IDLE and BEHAVIOUR
 	void ToggleIdleBehaviour()
 	{
 		if(_behaviourPattern != (int)Behaviours.LinearMov && _behaviourPattern != (int)Behaviours.Fleeing)
@@ -274,7 +370,8 @@ public class PFA_Civil : MonoBehaviour
 			_counter = 0f;
 		}
 	}
-
+	
+	// Can change behaviour ?
 	bool ChangeBCheck(float _randChance)
 	{
 		bool _retCheck = false;
@@ -292,6 +389,7 @@ public class PFA_Civil : MonoBehaviour
 		return _retCheck;
 	}
 	
+	// Rotate towards 
 	void RotateGraphTowards(Vector3 moveVec)
 	{
 		if (moveVec != Vector3.zero)
