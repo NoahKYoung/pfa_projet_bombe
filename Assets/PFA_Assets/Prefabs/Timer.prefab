@@ -40,8 +40,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 100000}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -.394574553, y: .271005213, z: -.574477434}
-  m_LocalScale: {x: 1.38911951, y: 1.38911951, z: 1.38911951}
+  m_LocalPosition: {x: -.646157086, y: -.0057276329, z: -.294172496}
+  m_LocalScale: {x: 1.92965305, y: 1.92965305, z: 1.92965305}
   m_Children:
   - {fileID: 400002}
   m_Father: {fileID: 0}
@@ -52,7 +52,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 100002}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: .313900173, y: 0, z: 0}
+  m_LocalPosition: {x: .336944908, y: -.0965809971, z: 0}
   m_LocalScale: {x: .100000001, y: .100000001, z: .100000001}
   m_Children: []
   m_Father: {fileID: 400000}
@@ -81,14 +81,14 @@ TextMesh:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 100002}
-  m_Text: Hello World
+  m_Text: TIMER
   m_OffsetZ: 0
-  m_CharacterSize: 1
+  m_CharacterSize: .379999995
   m_LineSpacing: 1
   m_Anchor: 4
   m_Alignment: 1
   m_TabSize: 4
-  m_FontSize: 0
+  m_FontSize: 59
   m_FontStyle: 0
   m_RichText: 1
   m_Font: {fileID: 12800000, guid: 335fdcdce6b1c5f4ea3415d0a92341ae, type: 3}
@@ -103,10 +103,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 100002}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33ac9eeec6ba3ec4bab68265eebe0925, type: 3}
+  m_Script: {fileID: 11500000, guid: 3f2b8e16168fb4c48a8c339783a7f91f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  time: 90
+  time: 10
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

@@ -56,7 +56,8 @@ public class PFA_TPControl : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
-		// Lol.
+		Transform Bomb = transform.Find("BOMB");
+		Bomb.rigidbody.isKinematic = true;
 	}
 	
 	// Update is called once per frame
@@ -66,7 +67,7 @@ public class PFA_TPControl : MonoBehaviour
 		{
 			CheckStates();
 			
-			if(!_stunned)
+			if(!_stunned && controlenabled)
 			{
 				CheckInputs();
 				MoveCharacter();
@@ -300,7 +301,7 @@ public class PFA_TPControl : MonoBehaviour
 		}
 	}
 	
-	void Explode()
+	public void Explode()
 	{
 		if(explosionON == false)
 		{

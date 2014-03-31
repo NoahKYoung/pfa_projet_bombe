@@ -54,6 +54,7 @@
      <Compile Include="Assets\PFA_Assets\Scripts\SpawnManager.cs" />
      <Compile Include="Assets\PFA_Assets\Scripts\TimerCounter.cs" />
      <Compile Include="Assets\PFA_Assets\Scripts\pauseMenu.cs" />
+     <None Include="Assets\PFA_Assets\Meshes\Materials\3Dtext.shader" />
  <Reference Include="Assembly-UnityScript-firstpass">
  <HintPath>Library\ScriptAssemblies\Assembly-UnityScript-firstpass.dll</HintPath>
  </Reference>

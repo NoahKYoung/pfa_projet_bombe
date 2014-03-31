@@ -1,32 +1,31 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class TimerCounter : MonoBehaviour {
+public class TimerCounter : MonoBehaviour 
+{
 	
 	public float time = 90.0f;
+	public Transform _playerRef;
 	TextMesh tm;
-	
-
 
 	// Use this for initialization
-	void Start () {
+	void Start () 
+	{
 	
 		tm = GetComponent<TextMesh>();
 	}
 	
 	// Update is called once per frame
-	public void Update () {
-		
-	
+	public void Update () 
+	{
 		time -= Time.deltaTime;
 		tm.text = Mathf.RoundToInt(time).ToString();
 	
-		
-			/*if( time <= 0.0f)
+		if(time <= 0f)
 		{
-			GetComponent<PFA_TPControl>().explosionON = true;
-		}*/
-}
+			(_playerRef.GetComponent("PFA_TPControl") as PFA_TPControl).Explode();
+		}
 	}
+}
 	
 	
