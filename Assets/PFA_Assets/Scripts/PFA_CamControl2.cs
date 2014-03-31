@@ -23,6 +23,10 @@ public class PFA_CamControl2 : MonoBehaviour
 	[HideInInspector]
 	public bool playerCanRotate;
 	
+	// Camera jump special
+	private bool _playerJumping = false;
+	private float _jumpStartY = 0f;
+	
 	// Use this for initialization
 	void Start () 
 	{
@@ -75,8 +79,10 @@ public class PFA_CamControl2 : MonoBehaviour
 		{
 			maxCamDist = hit.distance - padding;
 		}
-			
+		
+		// Camera setting
 		cam.position = closeCamPoint + closeToFarDir * maxCamDist;
+		
 		// Do a raycast from the camera to find the distance to the point we're aiming at.
 		float aimTargetDist;
 			
@@ -99,7 +105,7 @@ public class PFA_CamControl2 : MonoBehaviour
 	{
 		playerCanRotate = true;
 		// [edit] no aimtarget gameobject needs to be placed anymore - ben0bi
-		GameObject g =new GameObject();
+		GameObject g = new GameObject();
 		aimTarget = g.transform;
 		
 		// Add player's own layer to mask

@@ -403,6 +403,7 @@ GameObject:
   - 114: {fileID: 11400000}
   - 54: {fileID: 5400000}
   - 136: {fileID: 13600000}
+  - 114: {fileID: 11400006}
   m_Layer: 0
   m_Name: PFA_Bomb
   m_TagString: Untagged
@@ -1055,6 +1056,7 @@ MonoBehaviour:
   Explosion: {fileID: 100000, guid: ac23314321ff9034194c02df03126056, type: 2}
   SprintTime: 0
   RecoverSprintTime: 0
+  _canJump: 1
 --- !u!114 &11400002
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1088,8 +1090,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f2b8e16168fb4c48a8c339783a7f91f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  time: 10
+  time: 90
   _playerRef: {fileID: 400052}
+--- !u!114 &11400006
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7164827d23e58d5429d4724d6ddc3fbc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myskin: {fileID: 0}
 --- !u!124 &12400000
 Behaviour:
   m_ObjectHideFlags: 1

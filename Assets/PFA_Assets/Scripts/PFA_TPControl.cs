@@ -40,7 +40,7 @@ public class PFA_TPControl : MonoBehaviour
 	private float deadzone = 0.25f;
 	
 	// Game states
-	private bool _canJump = true;
+	public bool _canJump = true;
 	private bool _sprinting = false;
 	private bool showzone = false;
 	
