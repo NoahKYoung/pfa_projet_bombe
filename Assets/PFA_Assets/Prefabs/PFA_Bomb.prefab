@@ -492,7 +492,25 @@ GameObject:
   m_Component:
   - 4: {fileID: 400062}
   m_Layer: 0
-  m_Name: Timer
+  m_Name: Timer back
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &100064
+GameObject:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 400064}
+  - 23: {fileID: 2300004}
+  - 102: {fileID: 10200002}
+  - 114: {fileID: 11400008}
+  m_Layer: 0
+  m_Name: TimerScreentxt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -864,9 +882,9 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 100060}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: .336944908, y: -.0965809971, z: 0}
-  m_LocalScale: {x: .100000001, y: .100000001, z: .100000001}
+  m_LocalRotation: {x: 0, y: -1, z: 0, w: -4.37113883e-08}
+  m_LocalPosition: {x: .330698848, y: -.096581161, z: .260519475}
+  m_LocalScale: {x: .100000039, y: .100000039, z: .100000039}
   m_Children: []
   m_Father: {fileID: 400062}
 --- !u!4 &400062
@@ -879,8 +897,20 @@ Transform:
   m_LocalPosition: {x: -.646157086, y: -.0057276329, z: -.294172496}
   m_LocalScale: {x: 1.92965305, y: 1.92965305, z: 1.92965305}
   m_Children:
+  - {fileID: 400064}
   - {fileID: 400060}
   m_Father: {fileID: 400054}
+--- !u!4 &400064
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100064}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: .336944908, y: -.0965809971, z: 0}
+  m_LocalScale: {x: .100000001, y: .100000001, z: .100000001}
+  m_Children: []
+  m_Father: {fileID: 400062}
 --- !u!20 &2000000
 Camera:
   m_ObjectHideFlags: 1
@@ -945,6 +975,24 @@ Renderer:
   m_UseLightProbes: 0
   m_LightProbeAnchor: {fileID: 0}
   m_ScaleInLightmap: 1
+--- !u!23 &2300004
+Renderer:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100064}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_LightmapIndex: 255
+  m_LightmapTilingOffset: {x: 1, y: 1, z: 0, w: 0}
+  m_Materials:
+  - {fileID: 2100000, guid: 361080f44d12ed549877b959ccfa2b6d, type: 2}
+  m_SubsetIndices: 
+  m_StaticBatchRoot: {fileID: 0}
+  m_UseLightProbes: 0
+  m_LightProbeAnchor: {fileID: 0}
+  m_ScaleInLightmap: 1
 --- !u!33 &3300000
 MeshFilter:
   m_ObjectHideFlags: 1
@@ -964,7 +1012,7 @@ Rigidbody:
   m_AngularDrag: .0500000007
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 112
   m_CollisionDetection: 2
 --- !u!54 &5400002
@@ -1029,6 +1077,27 @@ TextMesh:
   m_Color:
     serializedVersion: 2
     rgba: 16778495
+--- !u!102 &10200002
+TextMesh:
+  serializedVersion: 3
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100064}
+  m_Text: TIMER
+  m_OffsetZ: 0
+  m_CharacterSize: .379999995
+  m_LineSpacing: 1
+  m_Anchor: 4
+  m_Alignment: 1
+  m_TabSize: 4
+  m_FontSize: 59
+  m_FontStyle: 0
+  m_RichText: 1
+  m_Font: {fileID: 12800000, guid: 335fdcdce6b1c5f4ea3415d0a92341ae, type: 3}
+  m_Color:
+    serializedVersion: 2
+    rgba: 16778495
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1043,6 +1112,7 @@ MonoBehaviour:
   _refCam: {fileID: 2000000}
   playergraphic: {fileID: 400054}
   zone: {fileID: 100000, guid: a486eaa15d97105438c310ca07eb6adb, type: 2}
+  _refspawn: {fileID: 0}
   _speed: 6
   _runningSpeed: 12
   _rangeExpAngle: 40
@@ -1053,6 +1123,7 @@ MonoBehaviour:
   _screamRadius: 20
   explosionON: 0
   controlenabled: 1
+  explosionRadius: 5
   Explosion: {fileID: 100000, guid: ac23314321ff9034194c02df03126056, type: 2}
   SprintTime: 0
   RecoverSprintTime: 0
@@ -1104,6 +1175,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myskin: {fileID: 0}
+--- !u!114 &11400008
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100064}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f2b8e16168fb4c48a8c339783a7f91f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  time: 90
+  _playerRef: {fileID: 400052}
 --- !u!124 &12400000
 Behaviour:
   m_ObjectHideFlags: 1

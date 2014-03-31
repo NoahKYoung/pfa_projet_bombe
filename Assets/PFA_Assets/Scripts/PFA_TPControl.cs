@@ -8,6 +8,7 @@ public class PFA_TPControl : MonoBehaviour
 	public Camera _refCam;
 	public Transform playergraphic;
 	public GameObject zone;
+	public Transform _refspawn;
 	
 	public float _speed = 6f; // Vitesse
 	public float _runningSpeed = 12f; // Vitesse en sprint
@@ -25,14 +26,13 @@ public class PFA_TPControl : MonoBehaviour
 	// Explosion management
 	public bool explosionON = false;
 	public bool controlenabled = true;
+	public float explosionRadius = 5f;
 	public GameObject Explosion;
 	
 	//SprintTimer vars
 	public float SprintTime;
-	private string currentSprintTime;
 	
 	public float RecoverSprintTime;
-	private string currentRecoverSprintTime;
 	bool _enableSprint = true;
 	
 	// Movement vars
@@ -43,6 +43,7 @@ public class PFA_TPControl : MonoBehaviour
 	public bool _canJump = true;
 	private bool _sprinting = false;
 	private bool showzone = false;
+	private bool _leftTriggerPressed = false;
 	
 	private bool _isSpherical = false;
 	
@@ -61,7 +62,7 @@ public class PFA_TPControl : MonoBehaviour
 	}
 	
 	// Update is called once per frame
-	void Update () 
+	void FixedUpdate () 
 	{
 		if(!_isSpherical)
 		{
@@ -86,7 +87,7 @@ public class PFA_TPControl : MonoBehaviour
 	{
 		if(showzone)
 		{
-			Vector3 pos = new Vector3(gameObject.transform.position.x, (gameObject.transform.position.y - collider.bounds.extents.y), gameObject.transform.position.z);
+			Vector3 pos = new Vector3(gameObject.transform.position.x, (gameObject.transform.position.y - collider.bounds.extents.y * 0.99f), gameObject.transform.position.z);
 			GameObject.Find("Zone(Clone)").transform.position = pos;
 		}
 	}
@@ -102,7 +103,6 @@ public class PFA_TPControl : MonoBehaviour
 		if(_enableSprint == false)
 		{
 			RecoverSprintTime -=Time.deltaTime;
-			currentRecoverSprintTime = string.Format("{0:0.0}", RecoverSprintTime);
 			
 			if(RecoverSprintTime <=0)
 			{
@@ -192,7 +192,8 @@ public class PFA_TPControl : MonoBehaviour
 		{
 			if(Vector3.Distance(_originalPos, transform.position) < _kickbackDistance)
 			{
-				this.transform.Translate(_kickbackDirection * _kickbackSpeed * Time.deltaTime);
+				rigidbody.MovePosition(transform.position + (_kickbackDirection * _kickbackSpeed * Time.deltaTime));
+				//this.transform.Translate(_kickbackDirection * _kickbackSpeed * Time.deltaTime);
 			}
 			else
 			{
@@ -238,8 +239,7 @@ public class PFA_TPControl : MonoBehaviour
 			Debug.Log("Jump");
 			_canJump = false;
 			
-			// ajouter linéairement pour etre compensé avec la gravité
-			rigidbody.AddForce(new Vector3(0, 6, 0), ForceMode.Impulse );
+			rigidbody.AddForce(new Vector3(0, 6, 0), ForceMode.Impulse);
 		}
 		
 		//Sprint/ Jump
@@ -248,7 +248,7 @@ public class PFA_TPControl : MonoBehaviour
 			Debug.Log("JumpSprint");
 			_canJump = false;
 			
-			rigidbody.AddForce(new Vector3(0, 7, 0), ForceMode.Impulse );
+			rigidbody.AddForce(new Vector3(0, 7, 0), ForceMode.Impulse);
 		}
 		
 		// Sprint input
@@ -259,7 +259,6 @@ public class PFA_TPControl : MonoBehaviour
 			RecoverSprintTime = 5;
 			
 			SprintTime -= Time.deltaTime;
-			currentSprintTime = string.Format("{0:0.0}", SprintTime);
 		
 			if (SprintTime <= 0)
 			{
@@ -280,6 +279,7 @@ public class PFA_TPControl : MonoBehaviour
 		if (Input.GetButtonDown("360_YButton"))
 		{
 			Shout();
+			//transform.Find();
 		}
 		
 		// Roll-up input
@@ -297,7 +297,16 @@ public class PFA_TPControl : MonoBehaviour
 		// Explosion zone
 		if (Input.GetAxis("360_Triggers") < 0)
 		{
-			zonevisibility();
+			if(!_leftTriggerPressed)
+			{
+				_leftTriggerPressed = true;
+				zonevisibility();
+			}
+		}
+		
+		if (Input.GetAxis("360_Triggers") == 0)
+		{
+			_leftTriggerPressed = false;
 		}
 	}
 	
@@ -307,6 +316,8 @@ public class PFA_TPControl : MonoBehaviour
 		{
 			//Destroy(gameObject);
 			Instantiate(Explosion, transform.position, transform.rotation);
+			GameObject.Find("Explosion(Clone)").transform.localScale = new Vector3(explosionRadius, explosionRadius, explosionRadius);
+			GameObject.Find("Explosion(Clone)").transform.position = transform.position;
 			controlenabled = false;
 		}
 		
@@ -400,43 +411,49 @@ public class PFA_TPControl : MonoBehaviour
 	
 	// Move and rotate character accordingly
 	void MoveCharacter()
-	{		
-		// Is sprinting ? Check speed
-		float currentSpeed = 0f;
-		
-		if(!_sprinting)
+	{	
+		if(stickInput != Vector2.zero)
 		{
-			currentSpeed = _speed;
-		}
-		else if (_sprinting)
-		{
-			currentSpeed = _runningSpeed;
-		}		
-		
-		// Player movement
-		Vector3 modifiedDirRight = _refCam.transform.right;
-		modifiedDirRight.y = 0;
-		
-		Vector3 modifiedDirForward = _refCam.transform.forward;
-		modifiedDirForward.y = 0;
-		
-		Vector3 xTranslate = modifiedDirRight * stickInput.x;
-		Vector3 yTranslate = modifiedDirForward * stickInput.y;
-		Vector3 composedTranslate = Vector3.Lerp(xTranslate, yTranslate, 0.5f);
-		
-		composedTranslate = Vector3.Normalize(composedTranslate);
-		this.transform.Translate(composedTranslate * Time.deltaTime * currentSpeed);
-		
-		
-		//Player graphic rotation
-		if (composedTranslate != Vector3.zero)
-		{
-			Quaternion newRotation = Quaternion.LookRotation(composedTranslate);
-			playergraphic.rotation = Quaternion.Slerp(playergraphic.rotation, newRotation, Time.deltaTime * 8);
+			// Is sprinting ? Check speed
+			float currentSpeed = 0f;
+			
+			if(!_sprinting)
+			{
+				currentSpeed = _speed;
+			}
+			else if (_sprinting)
+			{
+				currentSpeed = _runningSpeed;
+			}		
+			
+			// Player movement
+			Vector3 modifiedDirRight = _refCam.transform.right;
+			modifiedDirRight.y = 0;
+			
+			Vector3 modifiedDirForward = _refCam.transform.forward;
+			modifiedDirForward.y = 0;
+			
+			Vector3 xTranslate = modifiedDirRight * stickInput.x;
+			Vector3 yTranslate = modifiedDirForward * stickInput.y;
+			Vector3 composedTranslate = Vector3.Lerp(xTranslate, yTranslate, 0.5f);
+			
+			composedTranslate = Vector3.Normalize(composedTranslate);
+			composedTranslate.y = 0;
+			
+			rigidbody.MovePosition(transform.position + (composedTranslate * Time.deltaTime * currentSpeed));
+			//rigidbody.AddForce(composedTranslate, ForceMode.Force);
+			//this.transform.Translate(composedTranslate * Time.deltaTime * currentSpeed);
+			
+			//Player graphic rotation
+			if (composedTranslate != Vector3.zero)
+			{
+				Quaternion newRotation = Quaternion.LookRotation(composedTranslate);
+				playergraphic.rotation = Quaternion.Slerp(playergraphic.rotation, newRotation, Time.deltaTime * 8);
+			}
 		}
 	}
+	
 	//Explosion zone
-
 	void zonevisibility()
 	{
 		showzone = !showzone;
@@ -444,9 +461,10 @@ public class PFA_TPControl : MonoBehaviour
 		if (showzone)
 		{
 			
-			Vector3 pos = new Vector3(gameObject.transform.position.x, (gameObject.transform.position.y - collider.bounds.extents.y), gameObject.transform.position.z);
+			Vector3 pos = new Vector3(gameObject.transform.position.x, (gameObject.transform.position.y - collider.bounds.extents.y * 0.99f), gameObject.transform.position.z);
 			
 			Object.Instantiate(zone, pos, gameObject.transform.rotation);
+			GameObject.Find("Zone(Clone)").transform.localScale = new Vector3(explosionRadius, 0.01f, explosionRadius);
 			GameObject.Find("Zone(Clone)").transform.position = pos;
 		}
 		else

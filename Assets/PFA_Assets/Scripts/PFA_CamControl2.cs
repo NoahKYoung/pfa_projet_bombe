@@ -23,10 +23,6 @@ public class PFA_CamControl2 : MonoBehaviour
 	[HideInInspector]
 	public bool playerCanRotate;
 	
-	// Camera jump special
-	private bool _playerJumping = false;
-	private float _jumpStartY = 0f;
-	
 	// Use this for initialization
 	void Start () 
 	{
