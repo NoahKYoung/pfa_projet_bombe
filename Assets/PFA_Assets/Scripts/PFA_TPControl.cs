@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class PFA_TPControl : MonoBehaviour 
 {
@@ -9,22 +10,41 @@ public class PFA_TPControl : MonoBehaviour
 	public GameObject zone;
 	public GameObject ground;
 	
-	public float _speed = 0.2f; // Vitesse
-	public float _runningSpeed = 0.4f; // Vitesse en sprint
-	public float _sidewaySpeedDivider = 0.75f;
-	public float _reversinSpeedDivider = 0.5f;
-	public float _rotSpeed = 3.5f;
-	public float _sidewayRotSpeed = 4.5f;
-	public float _reversinRotSpeed = 6f;
+	public float _speed = 6f; // Vitesse
+	public float _runningSpeed = 12f; // Vitesse en sprint
+	
+	public float _rangeExpAngle = 40f;
+	public float _rangeRunExpAngle = 65f;
+	
+	public float _maxStunCount = 1.5f;
+	
+	public float _kickbackSpeed = 0.2f;
+	public float _kickbackDistance = 2f;
+	
+	public float _screamRadius = 20f;
 	
 	// Movement vars
-	Vector2 stickInput;
-	float deadzone = 0.25f;
+	private Vector2 stickInput;
+	private float deadzone = 0.25f;
 	
 	// Game states
+<<<<<<< HEAD
 	bool _canJump = true;
 	bool _sprinting = false;
 	bool showzone = false;
+=======
+	private bool _isSpherical = false;
+	private bool _canJump = true;
+	
+	private bool _sprinting = false;
+	
+	private bool _stunned = false;
+	private float _stunCount = 0;
+	
+	private bool _kickback = false;
+	private Vector3 _kickbackDirection;
+	private Vector3 _originalPos;
+>>>>>>> origin/pfa_noah
 	
 	// Use this for initialization
 	void Start ()
@@ -35,27 +55,137 @@ public class PFA_TPControl : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
 	{
-		CheckInputs();
-		MoveCharacter();
+		if(!_isSpherical)
+		{
+			CheckStates();
+			
+			if(!_stunned)
+			{
+				CheckInputs();
+				MoveCharacter();
+			}
+		}
+		else
+		{
+			SphericalUpdate();
+		}		
+	}
+	
+	void SphericalUpdate()
+	{
+		ResetCharPos();
+		CheckSphericalInputs();
+	}
+	
+	void ResetCharPos()
+	{
+		transform.position = transform.Find("BOMB").position;
+		transform.Find("BOMB").position = transform.position;
+	}
+	
+	void CheckSphericalInputs()
+	{
+		if(Input.GetKeyDown(KeyCode.JoystickButton1))
+		{
+			RollUp(false);
+		}
 	}
 	
 	void OnCollisionEnter(Collision col)
 	{
 		if(col.transform.tag == "Ground")
 		{
-			Debug.Log ("CAN JUMP !");
 			_canJump = true;
+		}
+		
+		if(col.transform.tag == "Wall")
+		{
+			float collisionAngle = Vector3.Angle(col.contacts[0].normal, -this.playergraphic.forward);
+			
+			if(_sprinting)
+			{
+				if(collisionAngle < _rangeRunExpAngle)
+				{
+					Debug.Log ("BOOOOM");
+				}
+				else
+				{
+					stunPlayer();
+					projectBack();
+				}
+			}
+			else
+			{
+				if(collisionAngle < _rangeExpAngle)
+				{
+					Debug.Log ("BOOOOM");
+				}
+				else
+				{
+					_originalPos = transform.position;
+					stunPlayer();
+					projectBack();
+				}
+			}
+		}
+		
+		if(col.transform.tag == "Civil")
+		{
+			_originalPos = transform.position;
+			stunPlayer();
+			projectBack();
 		}
 	}
 	
+	// Verify any states actual state
+	void CheckStates()
+	{
+		if(_stunned)
+		{
+			if(_stunCount >= _maxStunCount)
+			{
+				_stunned = false;
+				_stunCount = 0;
+			}
+			
+			_stunCount += Time.deltaTime;
+		}
+		
+		if(_kickback)
+		{
+			if(Vector3.Distance(_originalPos, transform.position) < _kickbackDistance)
+			{
+				this.transform.Translate(_kickbackDirection * _kickbackSpeed * Time.deltaTime);
+			}
+			else
+			{
+				Debug.Log(Vector3.Distance(_originalPos, transform.position));
+				_kickback = false;
+			}
+		}
+	}
+	
+	// Set stun variables
+	void stunPlayer()
+	{
+		_stunned = true;
+		_stunCount = 0;
+	}
+	
+	// Projects player backwards
+	void projectBack()
+	{
+		_kickback = true;
+		_kickbackDirection = -this.playergraphic.forward;
+		_kickbackDirection = Vector3.Normalize(_kickbackDirection);
+	}
+	
+	// Verify inputs
 	void CheckInputs()
 	{
 		// Movement Inputs		
 		stickInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
 		modifyInputs();
-		
-		//Debug.Log ("H = " + stickInput.x);
-		//Debug.Log ("V = " + stickInput.y);
 		
 		// Control inputs
 		// Jump inputs
@@ -70,26 +200,60 @@ public class PFA_TPControl : MonoBehaviour
 		// Sprint input
 		if (Input.GetKeyDown(KeyCode.JoystickButton2))
 		{
-			Debug.Log("Sprint");
 			_sprinting = true;			
 		}
 		
 		if (Input.GetKeyUp (KeyCode.JoystickButton2))
 		{
-			Debug.Log ("Stopped Sprinting");
 			_sprinting = false;
 		}
 		
 		// Shout input
 		if (Input.GetKeyDown(KeyCode.JoystickButton3))
 		{
-			Debug.Log("Shout");	
+			Shout();
 		}	
 		
 		// Roll-up input
-		if (Input.GetKey(KeyCode.JoystickButton1))
+		if (Input.GetKeyDown(KeyCode.JoystickButton1))
 		{
-			Debug.Log("Roll-up");
+			RollUp(true);
+		}
+	}
+	
+	void RollUp(bool spherical)
+	{
+		_isSpherical = spherical;
+		
+		rigidbody.isKinematic = spherical;
+		collider.enabled = !spherical;
+		transform.Find("GraphPlayer").Find("perso_mesh").Find("MESH").Find("arttoy:TOY1").renderer.enabled = !spherical;
+		
+		Transform Bomb = transform.Find("BOMB");
+		Bomb.rigidbody.isKinematic = !spherical;
+		Bomb.collider.enabled = spherical;
+		Bomb.renderer.enabled = spherical;
+		
+		Bomb.position = transform.position;
+		
+		if(_isSpherical)
+		{
+			float _currentSpeed = _speed;
+			
+			if(_sprinting) 
+			{ 
+				_currentSpeed = _runningSpeed; 
+			}
+			
+			float isMoving = 0f;
+			
+			if(stickInput != Vector2.zero)
+			{
+				isMoving = 1f;
+			}
+			
+			Bomb.rigidbody.velocity = rigidbody.velocity + (playergraphic.forward * _currentSpeed * isMoving);
+			
 		}
 		// Explosion zone input
 		if (Input.GetKey(KeyCode.Joystick1Button5))
@@ -98,6 +262,18 @@ public class PFA_TPControl : MonoBehaviour
 		}
 	}
 	
+	void Shout()
+	{
+		GameObject[] civilList =  GameObject.FindGameObjectsWithTag("Civil");
+		int i = 0;
+		
+		for(i = 0; i < civilList.Length; i++)
+		{
+			(civilList[i].GetComponent("PFA_Civil") as PFA_Civil).ScreamedAt();
+		}
+	}
+	
+	// Modify inputs for unique speed
 	void modifyInputs()
 	{
 		if(stickInput.x < deadzone && stickInput.x > -deadzone)
@@ -129,6 +305,7 @@ public class PFA_TPControl : MonoBehaviour
 		}
 	}
 	
+	// Move and rotate character accordingly
 	void MoveCharacter()
 	{		
 		// Is sprinting ? Check speed
@@ -150,24 +327,19 @@ public class PFA_TPControl : MonoBehaviour
 		Vector3 modifiedDirForward = _refCam.transform.forward;
 		modifiedDirForward.y = 0;
 		
-		Vector3 xTranslate = modifiedDirRight * stickInput.x * currentSpeed;
-		Vector3 yTranslate = modifiedDirForward * stickInput.y * currentSpeed;
+		Vector3 xTranslate = modifiedDirRight * stickInput.x;
+		Vector3 yTranslate = modifiedDirForward * stickInput.y;
 		Vector3 composedTranslate = Vector3.Lerp(xTranslate, yTranslate, 0.5f);
 		
-		if(composedTranslate.magnitude > currentSpeed)
-		{
-			composedTranslate.x /= 2;
-			composedTranslate.y /= 2;
-		}
+		composedTranslate = Vector3.Normalize(composedTranslate);
+		this.transform.Translate(composedTranslate * Time.deltaTime * currentSpeed);
 		
-		this.transform.Translate(composedTranslate);
 		
 		//Player graphic rotation
-		
 		if (composedTranslate != Vector3.zero)
 		{
 			Quaternion newRotation = Quaternion.LookRotation(composedTranslate);
-			playergraphic.transform.rotation = Quaternion.Slerp(playergraphic.transform.rotation, newRotation, Time.deltaTime * 8);
+			playergraphic.rotation = Quaternion.Slerp(playergraphic.rotation, newRotation, Time.deltaTime * 8);
 		}
 		
 	}
