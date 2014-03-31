@@ -3,19 +3,18 @@ using System.Collections;
 
 public class HUDcontrol : MonoBehaviour {
 	
-	/*
-	public Texture2D DamageCounter1;
-	public Texture2D DamageCounter2; 
-	public Texture2D DamageCounter3; 
-	public Texture2D DamageCounter4; 
-	public Texture2D DamageCounter5; 
-	public Texture2D DamageCounter6;
-	public Texture2D DamageCounter7; 
-	public Texture2D DamageCounter8; 
-	public Texture2D DamageCounter9; 
-	public Texture2D DamageCounter10; 
 	
+	public Texture DamageCounter1;
+	public Texture DamageCounter2; 
+	public Texture DamageCounter3; 
+	public Texture DamageCounter4; 
+	public Texture DamageCounter5; 
+	public Texture DamageCounter6;
+	public Texture DamageCounter7; 
+	public Texture DamageCounter8; 
+	public Texture DamageCounter9; 
 	
+	public Transform _ExplosionRef;
 	
 
 	// Use this for initialization
@@ -24,54 +23,54 @@ public class HUDcontrol : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public void Update () {
 		
-	if (GetComponent<ExplosionBehaviour>().CivilianCounter == 9)
+	if (_ExplosionRef.GetComponent<ExplosionBehaviour>().CivilianCounter == 8 || Input.GetButtonDown ("360_AButton"))
 		
 		{
 			guiTexture.texture = DamageCounter1;
 		}
-	if (GetComponent<ExplosionBehaviour>().CivilianCounter == 8)
+	if (_ExplosionRef.GetComponent<ExplosionBehaviour>().CivilianCounter == 7)
 	
 		{
-			guiTexture.texture = DamageCounter1;
+			guiTexture.texture = DamageCounter2;
 		}
-	if (GetComponent<ExplosionBehaviour>().CivilianCounter ==7)
+	if (_ExplosionRef.GetComponent<ExplosionBehaviour>().CivilianCounter == 6)
 		
 		{
-			guiTexture.texture = DamageCounter1;
+			guiTexture.texture = DamageCounter3;
 		}
-	if (GetComponent<ExplosionBehaviour>().CivilianCounter == 6)
+	if (_ExplosionRef.GetComponent<ExplosionBehaviour>().CivilianCounter == 5)
 		
 		{
-			guiTexture.texture = DamageCounter1;
+			guiTexture.texture = DamageCounter4;
 		}
-	if (GetComponent<ExplosionBehaviour>().CivilianCounter == 5)
+	if (_ExplosionRef.GetComponent<ExplosionBehaviour>().CivilianCounter == 4)
 		
 		{
-			guiTexture.texture = DamageCounter1;
+			guiTexture.texture = DamageCounter5;
 		}
 		
-	if (GetComponent<ExplosionBehaviour>().CivilianCounter == 4)
+	if (_ExplosionRef.GetComponent<ExplosionBehaviour>().CivilianCounter == 3)
 		
 		{
-			guiTexture.texture = DamageCounter1;
+			guiTexture.texture = DamageCounter6;
 		}
-	if (GetComponent<ExplosionBehaviour>().CivilianCounter == 3)
+	if (_ExplosionRef.GetComponent<ExplosionBehaviour>().CivilianCounter == 2)
 		
 		{
-			guiTexture.texture = DamageCounter1;
+			guiTexture.texture = DamageCounter7;
 		}
-	if (GetComponent<ExplosionBehaviour>().CivilianCounter == 2)
+	if (_ExplosionRef.GetComponent<ExplosionBehaviour>().CivilianCounter == 1)
 		
 		{
-			guiTexture.texture = DamageCounter1;
+			guiTexture.texture = DamageCounter8;
 		}
-	if (GetComponent<ExplosionBehaviour>().CivilianCounter == 1)
+	if (_ExplosionRef.GetComponent<ExplosionBehaviour>().CivilianCounter == 0)
 		
 		{
-			guiTexture.texture = DamageCounter1;
+			guiTexture.texture = DamageCounter9;
 		}
 	
-	}*/
+	}
 }

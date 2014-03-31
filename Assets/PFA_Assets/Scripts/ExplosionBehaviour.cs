@@ -8,12 +8,14 @@ public class ExplosionBehaviour : MonoBehaviour {
 
 void OnTriggerEnter(Collider other)
 	{
-		if (Input.GetAxis("360_Triggers")>0.001)
+		switch(other.tag)
 		{
-		
-			Destroy(other.gameObject);
-			CivilianCounter -= 1;
+			case "CivilExplode":
+				Destroy(other.gameObject);
+				Debug.Log("CivilDown");
+				CivilianCounter --;	
+			break;
 		}
-	}
 	
+	}
 }
