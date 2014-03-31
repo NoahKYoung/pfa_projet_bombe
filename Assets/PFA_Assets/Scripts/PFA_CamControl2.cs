@@ -30,7 +30,7 @@ public class PFA_CamControl2 : MonoBehaviour
 	}
 	
 	// Update is called once per frame
-	void LateUpdate () 
+	void LateUpdate() 
 	{
 		if (Time.deltaTime == 0 || Time.timeScale == 0 || player == null) 
 			return;

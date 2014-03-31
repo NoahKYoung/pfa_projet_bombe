@@ -801,7 +801,7 @@ MonoBehaviour:
   _patrolReference: {fileID: 0}
   _wanderRadius: 15
   _playerRef: {fileID: 0}
-  _behaviourPattern: 3
+  _behaviourPattern: 1
   _speed: 4
   _maxIdleTime: 5
   _minIdleTime: 1

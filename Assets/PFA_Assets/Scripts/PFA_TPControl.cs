@@ -8,7 +8,6 @@ public class PFA_TPControl : MonoBehaviour
 	public Camera _refCam;
 	public Transform playergraphic;
 	public GameObject zone;
-	public GameObject ground;
 	
 	public float _speed = 6f; // Vitesse
 	public float _runningSpeed = 12f; // Vitesse en sprint
@@ -23,20 +22,29 @@ public class PFA_TPControl : MonoBehaviour
 	
 	public float _screamRadius = 20f;
 	
+	// Explosion management
+	public bool explosionON = false;
+	public bool controlenabled = true;
+	public GameObject Explosion;
+	
+	//SprintTimer vars
+	public float SprintTime;
+	private string currentSprintTime;
+	
+	public float RecoverSprintTime;
+	private string currentRecoverSprintTime;
+	bool _enableSprint = true;
+	
 	// Movement vars
 	private Vector2 stickInput;
 	private float deadzone = 0.25f;
 	
 	// Game states
-<<<<<<< HEAD
-	bool _canJump = true;
-	bool _sprinting = false;
-	bool showzone = false;
-=======
-	private bool _isSpherical = false;
 	private bool _canJump = true;
-	
 	private bool _sprinting = false;
+	private bool showzone = false;
+	
+	private bool _isSpherical = false;
 	
 	private bool _stunned = false;
 	private float _stunCount = 0;
@@ -44,7 +52,6 @@ public class PFA_TPControl : MonoBehaviour
 	private bool _kickback = false;
 	private Vector3 _kickbackDirection;
 	private Vector3 _originalPos;
->>>>>>> origin/pfa_noah
 	
 	// Use this for initialization
 	void Start ()
@@ -63,7 +70,10 @@ public class PFA_TPControl : MonoBehaviour
 			{
 				CheckInputs();
 				MoveCharacter();
+				RecoverSprintControl();
 			}
+			
+			ManageExpZone();
 		}
 		else
 		{
@@ -71,10 +81,36 @@ public class PFA_TPControl : MonoBehaviour
 		}		
 	}
 	
+	void ManageExpZone()
+	{
+		if(showzone)
+		{
+			Vector3 pos = new Vector3(gameObject.transform.position.x, (gameObject.transform.position.y - collider.bounds.extents.y), gameObject.transform.position.z);
+			GameObject.Find("Zone(Clone)").transform.position = pos;
+		}
+	}
+	
 	void SphericalUpdate()
 	{
 		ResetCharPos();
 		CheckSphericalInputs();
+	}
+	
+	void RecoverSprintControl()
+	{
+		if(_enableSprint == false)
+		{
+			RecoverSprintTime -=Time.deltaTime;
+			currentRecoverSprintTime = string.Format("{0:0.0}", RecoverSprintTime);
+			
+			if(RecoverSprintTime <=0)
+			{
+				RecoverSprintTime = 0;
+				SprintTime = 5;
+				_enableSprint = true;
+
+			}
+		}
 	}
 	
 	void ResetCharPos()
@@ -106,7 +142,7 @@ public class PFA_TPControl : MonoBehaviour
 			{
 				if(collisionAngle < _rangeRunExpAngle)
 				{
-					Debug.Log ("BOOOOM");
+					Explode();
 				}
 				else
 				{
@@ -118,7 +154,7 @@ public class PFA_TPControl : MonoBehaviour
 			{
 				if(collisionAngle < _rangeExpAngle)
 				{
-					Debug.Log ("BOOOOM");
+					Explode();
 				}
 				else
 				{
@@ -183,47 +219,108 @@ public class PFA_TPControl : MonoBehaviour
 	// Verify inputs
 	void CheckInputs()
 	{
-		// Movement Inputs		
-		stickInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-		modifyInputs();
+		// Movement Inputs
+		if(controlenabled == true)
+		{
+			stickInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+			modifyInputs();
+		}
+		else
+		{
+			stickInput = Vector2.zero;
+		}
 		
 		// Control inputs
 		// Jump inputs
-		if (Input.GetKeyDown(KeyCode.JoystickButton0) && _canJump)
+		if (Input.GetButtonDown("360_AButton") && _canJump && _sprinting == false)
 		{
 			Debug.Log("Jump");
 			_canJump = false;
 			
 			// ajouter linéairement pour etre compensé avec la gravité
-			this.transform.Translate(this.transform.up);
-		}
-		// Sprint input
-		if (Input.GetKeyDown(KeyCode.JoystickButton2))
-		{
-			_sprinting = true;			
+			rigidbody.AddForce(new Vector3(0, 6, 0), ForceMode.Impulse );
 		}
 		
-		if (Input.GetKeyUp (KeyCode.JoystickButton2))
+		//Sprint/ Jump
+		if(_enableSprint == true && _canJump == true && _sprinting == true && Input.GetButtonDown("360_AButton"))
 		{
+			Debug.Log("JumpSprint");
+			_canJump = false;
+			
+			rigidbody.AddForce(new Vector3(0, 7, 0), ForceMode.Impulse );
+		}
+		
+		// Sprint input
+		if (Input.GetButton("360_XButton") && _enableSprint == true)
+		{
+			Debug.Log("Sprint");
+			_sprinting = true;
+			RecoverSprintTime = 5;
+			
+			SprintTime -= Time.deltaTime;
+			currentSprintTime = string.Format("{0:0.0}", SprintTime);
+		
+			if (SprintTime <= 0)
+			{
+				SprintTime = 0;
+				_sprinting = false;
+				_enableSprint = false;
+				Debug.Log("NoSprint");
+			}
+		}
+		
+		if (Input.GetButtonUp("360_XButton"))
+		{
+			Debug.Log ("Stopped Sprinting");
 			_sprinting = false;
 		}
 		
 		// Shout input
-		if (Input.GetKeyDown(KeyCode.JoystickButton3))
+		if (Input.GetButtonDown("360_YButton"))
 		{
 			Shout();
-		}	
+		}
 		
 		// Roll-up input
-		if (Input.GetKeyDown(KeyCode.JoystickButton1))
+		if (Input.GetButtonDown("360_BButton"))
 		{
 			RollUp(true);
 		}
+		
+		// Explosion
+		if(Input.GetAxis("360_Triggers") > 0)
+		{
+			Explode();
+		}
+		
+		// Explosion zone
+		if (Input.GetAxis("360_Triggers") < 0)
+		{
+			zonevisibility();
+		}
+	}
+	
+	void Explode()
+	{
+		if(explosionON == false)
+		{
+			//Destroy(gameObject);
+			Instantiate(Explosion, transform.position, transform.rotation);
+			controlenabled = false;
+		}
+		
+		explosionON = true;
 	}
 	
 	void RollUp(bool spherical)
 	{
 		_isSpherical = spherical;
+		
+		if(_isSpherical && showzone)
+		{
+			showzone = false;
+			Destroy(GameObject.Find("Zone(Clone)"), 0);
+		}
 		
 		rigidbody.isKinematic = spherical;
 		collider.enabled = !spherical;
@@ -254,11 +351,6 @@ public class PFA_TPControl : MonoBehaviour
 			
 			Bomb.rigidbody.velocity = rigidbody.velocity + (playergraphic.forward * _currentSpeed * isMoving);
 			
-		}
-		// Explosion zone input
-		if (Input.GetKey(KeyCode.Joystick1Button5))
-		{
-			zonevisibility();
 		}
 	}
 	
@@ -341,23 +433,24 @@ public class PFA_TPControl : MonoBehaviour
 			Quaternion newRotation = Quaternion.LookRotation(composedTranslate);
 			playergraphic.rotation = Quaternion.Slerp(playergraphic.rotation, newRotation, Time.deltaTime * 8);
 		}
-		
 	}
 	//Explosion zone
 
 	void zonevisibility()
 	{
 		showzone = !showzone;
-		Debug.Log("showzone");
+		
 		if (showzone)
 		{
-		Object.Instantiate(zone, new Vector3(gameObject.transform.position.x, ground.transform.position.y, gameObject.transform.position.z), gameObject.transform.rotation);
-		GameObject.Find("Zone(Clone)").transform.position = new Vector3(gameObject.transform.position.x, ground.transform.position.y, gameObject.transform.position.z);
+			
+			Vector3 pos = new Vector3(gameObject.transform.position.x, (gameObject.transform.position.y - collider.bounds.extents.y), gameObject.transform.position.z);
+			
+			Object.Instantiate(zone, pos, gameObject.transform.rotation);
+			GameObject.Find("Zone(Clone)").transform.position = pos;
 		}
 		else
 		{
-		Debug.Log("false");
-		Destroy(GameObject.Find("Zone(Clone)"), 0);
+			Destroy(GameObject.Find("Zone(Clone)"), 0);
 		}
 	}
 }
