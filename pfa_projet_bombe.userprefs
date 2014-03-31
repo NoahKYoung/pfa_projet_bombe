@@ -1,9 +1,11 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\PFA_Assets\Scripts\PFA_TPControl.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\PFA_Assets\Scripts\HUDcontrol.cs">
     <Files>
-      <File FileName="..\..\GD2_CHARBIT_Calvin_Unity\Assets\PlayerShot.cs" Line="6" Column="5" />
-      <File FileName="Assets\PFA_Assets\Scripts\PFA_TPControl.cs" Line="4" Column="13" />
+      <File FileName="Assets\PFA_Assets\Scripts\HUDcontrol.cs" Line="28" Column="115" />
+      <File FileName="Assets\PFA_Assets\Scripts\PFA_TPControl.cs" Line="4" Column="1" />
+      <File FileName="Assets\PFA_Assets\Scripts\TimerCounter.cs" Line="24" Column="17" />
+      <File FileName="Assets\PFA_Assets\Scripts\ExplosionBehaviour.cs" Line="16" Column="23" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
